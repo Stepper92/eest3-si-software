@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscador de Software - EEST N°3</title>
+    <style>
+        /* =========================================
+           CSS: IDENTIDAD INSTITUCIONAL EEST N°3
+           ========================================= */
+        :root {
+            --primary: #003153; /* Azul Prusia */
+            --accent: #C60C30;  /* Rojo Escudo */
+            --bg-light: #f4f6f9;
+            --text-dark: #333;
+            --border: #ccc;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e9ecef;
+            color: var(--text-dark);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,49,83,0.2); /* Sombra con tono azul prusia */
+            max-width: 650px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: gray;
+            font-size: 0.9rem;
+            margin-bottom: 25px;
+        }
+
+        /* Sistema de Pestañas */
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: none;
+            font-weight: bold;
+            font-size: 1rem;
+            color: gray;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom: 3px solid var(--accent); /* Acento rojo en la pestaña activa */
+        }
+
+        /* Secciones de búsqueda */
+        .search-section { display: none; }
+        .search-section.active { display: block; }
+
+        /* Buscador en vivo (Inputs) */
+        input[type="text"] {
+            width: 100%;
+            padding: 14px;
+            margin: 10px 0 20px 0;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            font-size: 1.1rem;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Tarjetas de Resultados */
+        .result-card {
+            background: var(--bg-light);
+            border-left: 5px solid var(--primary);
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+
+        .result-card h3 {
+            margin: 0 0 10px 0;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        .tag {
+            display: inline-block;
+            background: var(--accent); /* Etiquetas en rojo */
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            margin: 4px 4px 4px 0;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .tag.empty {
+            background: gray;
+        }
+
+        #loading {
+            text-align: center;
+            font-weight: bold;
+            color: var(--primary);
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Buscador de Software</h1>
+    <div class="subtitle">E.E.S.T. N°3 San Isidro</div>
+    
+    <p id="loading">⏳ Sincronizando con la base de datos...</p>
+
+    <div id="app-content" style="display: none;">
+        
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('programTab')">Buscar por Programa</button>
+            <button class="tab-btn" onclick="switchTab('pcTab')">Buscar por Equipo</button>
+        </div>
+
+        <div id="programTab" class="search-section active">
+            <label for="programSearch"><strong>¿Qué programa necesitas?</strong></label>
+            <input type="text" id="programSearch" placeholder="Ej. AutoCAD, WEG, SolidWorks...">
+            <div id="programResult">
+                </div>
+        </div>
+
+        <div id="pcTab" class="search-section">
+            <label for="pcSearch"><strong>Buscar un equipo:</strong></label>
+            <input type="text" id="pcSearch" placeholder="Ej. DD1, DD5...">
+            <div id="pcResult">
+                </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    /* =========================================
+       JAVASCRIPT: LÓGICA DE DATOS Y FILTRADO
+       ========================================= */
+
+    // TODO: REEMPLAZA ESTE ENLACE POR EL TUYO PUBLICADO EN FORMATO TSV
+    const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRx1YeDEVIQ7iShY2ror9WgscScMJOSOH9TXdjUQPANCa-Hrb2q5xGyceRBY0KkcBvMyDeN6sgvcfxa/pub?output=tsv';
+
+    // Bases de datos en memoria
+    let dbProgramas = {}; 
+    let dbPCs = {};       
+
+    async function initApp() {
+        try {
+            const response = await fetch(GOOGLE_SHEET_URL);
+            if (!response.ok) throw new Error('Fallo de conexión');
+            
+            const tsvData = await response.text();
+            procesarDatos(tsvData);
+            
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('app-content').style.display = 'block';
+            
+            // Mostrar todos los datos al inicio (opcional)
+            renderResultados(Object.keys(dbProgramas), dbProgramas, 'programResult', 'Equipos disponibles:');
+        } catch (error) {
+            console.error(error);
+            document.getElementById('loading').innerHTML = '❌ Error al cargar los datos.<br>Verifique la conexión o el enlace de la planilla.';
+            document.getElementById('loading').style.color = 'red';
+        }
+    }
+
+    function procesarDatos(tsvData) {
+        const filas = tsvData.split('\n');
+        const encabezados = filas[0].split('\t').map(h => h.trim());
+        const nombresPCs = encabezados.slice(1); 
+
+        nombresPCs.forEach(pc => {
+            if(pc) dbPCs[pc] = [];
+        });
+
+        for (let i = 1; i < filas.length; i++) {
+            const celdas = filas[i].split('\t').map(c => c.trim());
+            if (!celdas[0]) continue; 
+
+            const nombrePrograma = celdas[0];
+            dbProgramas[nombrePrograma] = []; 
+
+            for (let j = 1; j < celdas.length; j++) {
+                // Ahora acepta '1' o también si por error pusieran texto, lo ignoramos. 
+                // Mantenemos la lógica binaria estricta como acordamos.
+                if (celdas[j] === '1') {
+                    const pcActual = nombresPCs[j - 1];
+                    if(pcActual) {
+                        dbProgramas[nombrePrograma].push(pcActual);
+                        dbPCs[pcActual].push(nombrePrograma); 
+                    }
+                }
+            }
+        }
+    }
+
+    /* =========================================
+       MOTOR DE BÚSQUEDA EN VIVO (LIVE SEARCH)
+       ========================================= */
+
+    // Escucha cada vez que se teclea en el buscador de programas
+    document.getElementById('programSearch').addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        const todosLosProgramas = Object.keys(dbProgramas);
+        
+        // Filtrar coincidencias
+        const coincidencias = todosLosProgramas.filter(prog => prog.toLowerCase().includes(query));
+        renderResultados(coincidencias, dbProgramas, 'programResult', 'Equipos disponibles:');
+    });
+
+    // Escucha cada vez que se teclea en el buscador de PCs
+    document.getElementById('pcSearch').addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        const todasLasPCs = Object.keys(dbPCs);
+        
+        const coincidencias = todasLasPCs.filter(pc => pc.toLowerCase().includes(query));
+        renderResultados(coincidencias, dbPCs, 'pcResult', 'Software instalado:');
+    });
+
+    /**
+     * Dibuja las tarjetas de resultados en el HTML
+     */
+    function renderResultados(listaClaves, diccionario, contenedorId, subtitulo) {
+        const contenedor = document.getElementById(contenedorId);
+        contenedor.innerHTML = ''; // Limpiar anteriores
+
+        if (listaClaves.length === 0) {
+            contenedor.innerHTML = '<p style="color:gray;">No se encontraron coincidencias...</p>';
+            return;
+        }
+
+        listaClaves.forEach(clave => {
+            const items = diccionario[clave]; // Arrays de PCs o Programas
+            
+            const card = document.createElement('div');
+            card.className = 'result-card';
+            
+            const titulo = document.createElement('h3');
+            titulo.innerText = clave;
+            card.appendChild(titulo);
+
+            const label = document.createElement('div');
+            label.style.fontSize = '0.9rem';
+            label.style.marginBottom = '8px';
+            label.innerText = subtitulo;
+            card.appendChild(label);
+
+            if (items.length > 0) {
+                items.forEach(item => {
+                    const tag = document.createElement('span');
+                    tag.className = 'tag';
+                    tag.innerText = item;
+                    card.appendChild(tag);
+                });
+            } else {
+                const tag = document.createElement('span');
+                tag.className = 'tag empty';
+                tag.innerText = 'Ninguno';
+                card.appendChild(tag);
+            }
+
+            contenedor.appendChild(card);
+        });
+    }
+
+    /**
+     * Alternar Pestañas
+     */
+    function switchTab(tabId) {
+        document.querySelectorAll('.search-section').forEach(sec => sec.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        
+        document.getElementById(tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
+        
+        // Limpiar inputs al cambiar de pestaña
+        document.getElementById('programSearch').value = '';
+        document.getElementById('pcSearch').value = '';
+        
+        // Renderizar todo de nuevo en la pestaña activa
+        if(tabId === 'programTab') {
+            renderResultados(Object.keys(dbProgramas), dbProgramas, 'programResult', 'Equipos disponibles:');
+        } else {
+            renderResultados(Object.keys(dbPCs), dbPCs, 'pcResult', 'Software instalado:');
+        }
+    }
+
+    // Iniciar aplicación
+    initApp();
+
+</script>
+</body>
+</html>
