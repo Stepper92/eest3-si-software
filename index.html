@@ -6,20 +6,23 @@
     <title>Buscador de Software - EEST N°3</title>
     <style>
         /* =========================================
-           CSS: IDENTIDAD INSTITUCIONAL EEST N°3
+           CSS: IDENTIDAD INSTITUCIONAL (DARK MODE)
            ========================================= */
         :root {
-            --primary: #003153; /* Azul Prusia */
-            --accent: #C60C30;  /* Rojo Escudo */
-            --bg-light: #f4f6f9;
-            --text-dark: #333;
-            --border: #ccc;
+            --bg-body: #001524;       /* Azul Noche muy oscuro (Fondo principal) */
+            --bg-container: #003153;  /* Azul Prusia (Fondo de contenedores) */
+            --bg-card: #004B7A;       /* Azul más claro para inputs y tarjetas */
+            --accent: #C60C30;        /* Rojo Escudo (Detalles y botones) */
+            --accent-hover: #E3183F;  /* Rojo más brillante para hover */
+            --text-main: #F4F6F9;     /* Texto claro principal */
+            --text-muted: #A0B2C6;    /* Texto grisáceo/azulado secundario */
+            --border-color: #00223E;  /* Bordes oscuros */
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #e9ecef;
-            color: var(--text-dark);
+            background-color: var(--bg-body);
+            color: var(--text-main);
             margin: 0;
             padding: 20px;
             display: flex;
@@ -27,24 +30,26 @@
         }
 
         .container {
-            background: white;
+            background: var(--bg-container);
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,49,83,0.2); /* Sombra con tono azul prusia */
+            box-shadow: 0 8px 25px rgba(0,0,0,0.6); /* Sombra oscura para dar profundidad */
             max-width: 650px;
             width: 100%;
+            border: 1px solid var(--border-color);
         }
 
         h1 {
             text-align: center;
-            color: var(--primary);
+            color: #FFFFFF;
             font-size: 1.8rem;
             margin-bottom: 5px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
         .subtitle {
             text-align: center;
-            color: gray;
+            color: var(--text-muted);
             font-size: 0.9rem;
             margin-bottom: 25px;
         }
@@ -53,7 +58,7 @@
         .tabs {
             display: flex;
             margin-bottom: 20px;
-            border-bottom: 2px solid var(--border);
+            border-bottom: 2px solid var(--border-color);
         }
 
         .tab-btn {
@@ -63,17 +68,18 @@
             background: none;
             font-weight: bold;
             font-size: 1rem;
-            color: gray;
+            color: var(--text-muted);
             cursor: pointer;
             transition: 0.3s;
         }
 
         .tab-btn:hover {
-            color: var(--primary);
+            color: #FFFFFF;
+            background-color: rgba(255, 255, 255, 0.05);
         }
 
         .tab-btn.active {
-            color: var(--primary);
+            color: #FFFFFF;
             border-bottom: 3px solid var(--accent); /* Acento rojo en la pestaña activa */
         }
 
@@ -82,35 +88,55 @@
         .search-section.active { display: block; }
 
         /* Buscador en vivo (Inputs) */
+        label {
+            display: block;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
         input[type="text"] {
             width: 100%;
             padding: 14px;
-            margin: 10px 0 20px 0;
-            border: 2px solid var(--border);
+            margin: 0 0 20px 0;
+            background-color: var(--bg-card);
+            color: #FFFFFF;
+            border: 2px solid var(--border-color);
             border-radius: 6px;
             font-size: 1.1rem;
             box-sizing: border-box;
-            transition: border-color 0.3s;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        input[type="text"]::placeholder {
+            color: #7A93AA;
         }
 
         input[type="text"]:focus {
             outline: none;
-            border-color: var(--primary);
+            border-color: var(--accent);
+            box-shadow: 0 0 8px rgba(198, 12, 48, 0.4);
         }
 
         /* Tarjetas de Resultados */
         .result-card {
-            background: var(--bg-light);
-            border-left: 5px solid var(--primary);
+            background: var(--bg-card);
+            border-left: 5px solid var(--accent); /* Borde rojo identificatorio */
             padding: 15px;
             margin-bottom: 15px;
             border-radius: 4px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
         }
 
         .result-card h3 {
             margin: 0 0 10px 0;
-            color: var(--primary);
+            color: #FFFFFF;
             font-size: 1.2rem;
+        }
+
+        .result-card .sub-label {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            color: var(--text-muted);
         }
 
         .tag {
@@ -122,16 +148,18 @@
             margin: 4px 4px 4px 0;
             font-size: 0.9rem;
             font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
 
         .tag.empty {
-            background: gray;
+            background: #4A5C6F; /* Gris oscuro para los vacíos */
+            color: #C0CDDB;
         }
 
         #loading {
             text-align: center;
             font-weight: bold;
-            color: var(--primary);
+            color: var(--text-main);
             padding: 20px;
         }
     </style>
@@ -174,7 +202,7 @@
        ========================================= */
 
     // TODO: REEMPLAZA ESTE ENLACE POR EL TUYO PUBLICADO EN FORMATO TSV
-    const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRx1YeDEVIQ7iShY2ror9WgscScMJOSOH9TXdjUQPANCa-Hrb2q5xGyceRBY0KkcBvMyDeN6sgvcfxa/pub?output=tsv';
+    const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT_REEMPLAZAR_POR_TU_ID/pub?output=tsv';
 
     // Bases de datos en memoria
     let dbProgramas = {}; 
@@ -196,7 +224,7 @@
         } catch (error) {
             console.error(error);
             document.getElementById('loading').innerHTML = '❌ Error al cargar los datos.<br>Verifique la conexión o el enlace de la planilla.';
-            document.getElementById('loading').style.color = 'red';
+            document.getElementById('loading').style.color = '#ff6b6b';
         }
     }
 
@@ -217,8 +245,6 @@
             dbProgramas[nombrePrograma] = []; 
 
             for (let j = 1; j < celdas.length; j++) {
-                // Ahora acepta '1' o también si por error pusieran texto, lo ignoramos. 
-                // Mantenemos la lógica binaria estricta como acordamos.
                 if (celdas[j] === '1') {
                     const pcActual = nombresPCs[j - 1];
                     if(pcActual) {
@@ -261,7 +287,7 @@
         contenedor.innerHTML = ''; // Limpiar anteriores
 
         if (listaClaves.length === 0) {
-            contenedor.innerHTML = '<p style="color:gray;">No se encontraron coincidencias...</p>';
+            contenedor.innerHTML = '<p style="color: var(--text-muted);">No se encontraron coincidencias...</p>';
             return;
         }
 
@@ -276,8 +302,7 @@
             card.appendChild(titulo);
 
             const label = document.createElement('div');
-            label.style.fontSize = '0.9rem';
-            label.style.marginBottom = '8px';
+            label.className = 'sub-label';
             label.innerText = subtitulo;
             card.appendChild(label);
 
