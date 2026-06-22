@@ -43,8 +43,8 @@ Cuando se instala un nuevo paquete de software (o se remapea el laboratorio), el
 
 **Modelo de Permisos y Control de Acceso (Matriz de Roles):**
 **Dueño del Recurso (Usuario Institucional):** Cuenta unificada propietaria exclusiva de la planilla madre.
-* 🛠️ **Administradores de Sistema (SysAdmins):** Cuentas técnicas específicas con permisos explícitos de edición compartida. Únicos autorizados para alterar la matriz.
-* 👁️ **Comunidad Educativa (Docentes / Estudiantes):** Acceso público restringido de *Solo Lectura* exclusivamente a través del frontend web. No poseen visibilidad del entorno de edición.
+* **Administradores de Sistema (SysAdmins):** Cuentas técnicas específicas con permisos explícitos de edición compartida. Únicos autorizados para alterar la matriz.
+* **Comunidad Educativa (Docentes / Estudiantes):** Acceso público restringido de *Solo Lectura* exclusivamente a través del frontend web. No poseen visibilidad del entorno de edición.
 
 ## 6. Seguridad y Mitigación de Riesgos
 Desde una perspectiva de ciberseguridad, el diseño presenta ventajas críticas:
