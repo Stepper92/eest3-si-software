@@ -42,7 +42,7 @@ El proyecto desacopla completamente el código fuente de la gestión de datos. E
 Cuando se instala un nuevo paquete de software (o se remapea el laboratorio), el procedimiento no requiere la edición del código. El administrador simplemente abre la planilla de Google Sheets y marca un `1` (instalado) o un `0` (no instalado) en la intersección correspondiente. La sincronización web es transparente y en tiempo real.
 
 <div align="center">
-  <img src="capturas/captura_sheets.png" width="30%" alt="Matriz Sheets">
+  <img src="capturas/captura_sheets.png" width="100%" alt="Matriz Sheets">
 </div>
 
 **Modelo de Permisos y Control de Acceso (Matriz de Roles):**
