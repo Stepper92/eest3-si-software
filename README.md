@@ -41,6 +41,10 @@ El proyecto desacopla completamente el código fuente de la gestión de datos. E
 **Procedimiento de Modificación:**
 Cuando se instala un nuevo paquete de software (o se remapea el laboratorio), el procedimiento no requiere la edición del código. El administrador simplemente abre la planilla de Google Sheets y marca un `1` (instalado) o un `0` (no instalado) en la intersección correspondiente. La sincronización web es transparente y en tiempo real.
 
+<div align="center">
+  <img src="capturas/captura_sheets.png" width="30%" alt="Matriz Sheets">
+</div>
+
 **Modelo de Permisos y Control de Acceso (Matriz de Roles):**
 **Dueño del Recurso (Usuario Institucional):** Cuenta unificada propietaria exclusiva de la planilla madre.
 * **Administradores de Sistema (SysAdmins):** Cuentas técnicas específicas con permisos explícitos de edición compartida. Únicos autorizados para alterar la matriz.
@@ -53,6 +57,12 @@ Desde una perspectiva de ciberseguridad, el diseño presenta ventajas críticas:
 
 ## 7. Interfaz de Usuario y Capturas (UI/UX)
 La interfaz fue diseñada con una estética de modo oscuro que reduce la fatiga visual y se adapta orgánicamente a las pantallas de los dispositivos móviles. Se conservaron los colores de identidad institucional.
+
+<div align="center">
+  <img src="capturas/captura_vista_general.png" width="30%" alt="Vista General">
+  <img src="capturas/captura_filtro_software.png" width="30%" alt="Filtro por Software">
+  <img src="capturas/captura_filtro_equipo.png" width="30%" alt="Filtro por Equipo">
+</div>
 
 ## 8. Conclusión e Impacto
 Este proyecto evidencia competencias clave en desarrollo frontend, optimización de algoritmos en memoria, gestión ágil de infraestructura serverless y un riguroso criterio de seguridad y gobernanza de datos.
