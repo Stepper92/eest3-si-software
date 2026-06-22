@@ -65,4 +65,4 @@ La interfaz fue diseñada con una estética de modo oscuro que reduce la fatiga 
 </div>
 
 ## 8. Conclusión e Impacto
-Este proyecto evidencia competencias clave en desarrollo frontend, optimización de algoritmos en memoria, gestión ágil de infraestructura serverless y un riguroso criterio de seguridad y gobernanza de datos.
+Este proyecto, que ya está en aplicación en la escuela, logra reducir al mínimo posible el tiempo de asignación y entrega del equipamiento, dejando ese tiempo para ser aprovechado en el aula.
